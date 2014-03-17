@@ -51,7 +51,8 @@ function Get-UNCQuota {
         if ($Path -match '^\\\\(?<server>\w+)\\(?<share>\w+)(?<relative_path>.+)?') {
             try {
                 if ($matches.relative_path) {
-                    $local_path = Join-Path -Path $local_path -ChildPath $matches.relative_path
+                    #$local_path = Join-Path -Path $local_path -ChildPath $matches.relative_path
+                    $local_path = [IO.Path]::GetFullPath("$local_path`\$($matches.relative_path)")
                 }
                 
                 Get-fsrmquota -path $local_path -CimSession $matches.server
