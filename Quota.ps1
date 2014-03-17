@@ -94,7 +94,7 @@ function Set-UNCQuota {
                 Write-Error "Error setting FSRM quota" -ErrorAction Stop
             }
 
-            $new_quota = Get-UNCQuota -Path $current_quota.Path 
+            $new_quota = Get-UNCQuota -Path $Path
 
             if ($new_quota.Size -eq $Size) {
                 $new_quota
