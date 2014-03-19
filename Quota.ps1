@@ -107,3 +107,45 @@ function Set-UNCQuota {
     end {}
 
 }
+
+function New-UNCQuota {
+    [CmdletBinding()]
+
+    param(
+        [Parameter(Mandatory=$true)]
+        [Alias('UNC','UNCPath')]
+        $Path,
+        [Parameter(Mandatory=$true)]
+        $Template    
+    )
+    
+    begin {}
+
+    process {
+        $current_quota = Get-UNCQuota -Path $Path 
+
+        if ($current_quota) {
+            Write-Error "A quota already exists for $Path"
+        } else {
+            $local_path = Resolve-UNCPath -Path $Path
+
+            if (-not $local_path) {
+                Write-Error "Cannot resolve UNC path"
+            } else {
+            
+                if ($Path -match '^\\\\(?<server>\w+)\\(?<share>\w+)(?<relative_path>.+)?') {
+                    try {
+                        $local_path = [IO.Path]::GetFullPath("$local_path`\$($matches.relative_path)")
+                        New-FSRMQuota -Path $local_path -CimSession $matches.server -Template $Template
+                    }
+                    catch {
+                        Write-Error "Cannot create quota"
+                    }
+                }
+            }
+        }
+    }
+
+    end {}
+
+}
