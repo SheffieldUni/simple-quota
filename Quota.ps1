@@ -122,7 +122,12 @@ function New-UNCQuota {
     begin {}
 
     process {
-        $current_quota = Get-UNCQuota -Path $Path -ErrorAction SilentlyContinue
+        try {
+            $current_quota = Get-UNCQuota -Path $Path
+        }
+        catch {
+            $current_quota = $null
+        }
 
         if ($current_quota) {
             Write-Error "A quota already exists for $Path"
