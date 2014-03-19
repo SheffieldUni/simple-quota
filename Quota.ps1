@@ -55,7 +55,7 @@ function Get-UNCQuota {
                     $local_path = [IO.Path]::GetFullPath("$local_path`\$($matches.relative_path)")
                 }
                 
-                Get-fsrmquota -path $local_path -CimSession $matches.server
+                Get-fsrmquota -path $local_path -CimSession $matches.server -ErrorAction stop
             }
             catch {
                 Write-Error "Problem querying server or path not found" -ErrorAction stop
@@ -122,7 +122,7 @@ function New-UNCQuota {
     begin {}
 
     process {
-        $current_quota = Get-UNCQuota -Path $Path 
+        $current_quota = Get-UNCQuota -Path $Path -ErrorAction SilentlyContinue
 
         if ($current_quota) {
             Write-Error "A quota already exists for $Path"
@@ -136,7 +136,7 @@ function New-UNCQuota {
                 if ($Path -match '^\\\\(?<server>\w+)\\(?<share>\w+)(?<relative_path>.+)?') {
                     try {
                         $local_path = [IO.Path]::GetFullPath("$local_path`\$($matches.relative_path)")
-                        New-FSRMQuota -Path $local_path -CimSession $matches.server -Template $Template
+                        New-FSRMQuota -Path $local_path -CimSession $matches.server -Template $Template -ErrorAction Stop
                     }
                     catch {
                         Write-Error "Cannot create quota"
